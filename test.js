@@ -1,9 +1,7 @@
-// Helpers
 const pluck = (arr, key) => arr.map(r => r[key])
 const isScalar = (oo) => ['boolean', 'string', 'number', 'undefined', 'function'].indexOf(typeof (oo)) >= 0
 const intersect = (ob1, obj2) => ob1.filter(v => obj2.includes(v));
 const isFloat = (n) => n === +n && n !== (n | 0)
-const isInteger = (n) => n === +n && n === (n | 0)
 const asc = arr => arr.sort((a, b) => a - b);
 const sum = arr => arr.reduce((a, b) => a + b, 0);
 const mean = arr => sum(arr) / arr.length;
@@ -55,7 +53,7 @@ function getObjectStatistics(object, key = '__roo_t_', first = true) {
         for (let index = 0; index < intersection.length; index++) {
             const key = intersection[index]
             const arr = pluck(object, key)
-            ret[`array_${key}`] = getObjectStatistics(arr, key, false)
+            ret[`${key}`] = getObjectStatistics(arr, key, false)
         }
         return ret
     }
