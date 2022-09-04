@@ -18,6 +18,7 @@ let oo = {
         c: 100
     }],
     abee: [1, 5, 4, 8, 7, 9, 10, 1000],
+    wee: ["1", "5", "5", true, Math.max, Math.max, undefined, null],
     foo: 1,
     bar: 1.2,
     baz: "geez"
@@ -29,39 +30,44 @@ To
 ```js
 {
    "v":{
-      "array_a":{
-         "type":"array",
+      "a":{
+         "type":"array:number",
+         "count":2,
+         "mean":4,
+         "std":1.4142135623730951,
          "min":3,
-         "max":5,
-         "avg":4,
          "q25":3.5,
-         "q50":4,
-         "q75":4.5,
          "median":4,
-         "std":1.4142135623730951
+         "q75":4.5,
+         "max":5
       },
-      "array_c":{
-         "type":"array",
+      "c":{
+         "type":"array:number",
+         "count":2,
+         "mean":55,
+         "std":63.63961030678928,
          "min":10,
-         "max":100,
-         "avg":55,
          "q25":32.5,
-         "q50":55,
-         "q75":77.5,
          "median":55,
-         "std":63.63961030678928
+         "q75":77.5,
+         "max":100
       }
    },
    "abee":{
-      "type":"array",
+      "type":"array:number",
+      "count":8,
+      "mean":130.5,
+      "std":351.34313711811706,
       "min":1,
-      "max":1000,
-      "avg":130.5,
       "q25":4.75,
-      "q50":7.5,
-      "q75":9.25,
       "median":7.5,
-      "std":351.34313711811706
+      "q75":9.25,
+      "max":1000
+   },
+   "wee":{
+      "type":"array:mixed",
+      "count":6,
+      "unique":4
    },
    "foo":{
       "type":"integer"
@@ -76,5 +82,6 @@ To
 ```
 
 Note: It is meant to be lazy and opportunistic (to be fast). Like in one iteration try to grab anything useful then maybe go deeper. This is why code is not so clear.
+Note: `undefined` are considered unique values, while `null` are omited from any count.
 
 

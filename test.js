@@ -1,3 +1,5 @@
+// null are removed from arrays statistics !
+
 // Helpers
 const pluck = (arr, key) => arr.map(r => r[key])
 const isNotObject = (oo) => ['boolean', 'string', 'number', 'undefined', 'function'].indexOf(typeof (oo)) >= 0
@@ -31,13 +33,14 @@ const q75 = arr => quantile(arr, .75);
 function getObjectStatistics(object, key = '__roo_t_', first = true) {
     if (first && isNotObject(object)) return null
     else if (isNotObject(object)) return { type: typeof (object) === 'number' ? (isFloat(object) ? 'float' : 'integer') : typeof (object) }
-
     if (first && Array.isArray(object)) return null
-    // if(!!(object && object.constructor && object.call && object.apply)) return null
+    
+    if(Array.isArray(object))
+        object = object.filter(el => el != null)
     let min, intersection
     if (Array.isArray(object) && !isNaN(min = Math.min.apply(null, object))) {
         const ret = {
-            type: 'array',
+            type: 'array:number',
             count: object.length,
             mean: object.reduce((a, b) => a + b, 0) / object.length,
             std: std(object),
@@ -50,7 +53,7 @@ function getObjectStatistics(object, key = '__roo_t_', first = true) {
         return ret
     } else if (Array.isArray(object) && object.length > 1 && object.every(isNotObject)) {
         const ret = {
-            type: 'array',
+            type: 'array:mixed',
             count: object.length,
             unique: new Set(object).size
         }
@@ -82,10 +85,10 @@ oo = {
         c: 100
     }],
     abee: [1, 5, 4, 8, 7, 9, 10, 1000],
+    wee: ["1", "5", "5", true, Math.max, Math.max, undefined, null],
     foo: 1,
     bar: 1.2,
     baz: "geez"
 }
 
 cc = getObjectStatistics(oo)
-console.log(JSON.stringify(cc))
