@@ -1,5 +1,6 @@
+// Helpers
 const pluck = (arr, key) => arr.map(r => r[key])
-const isScalar = (oo) => ['boolean', 'string', 'number', 'undefined', 'function'].indexOf(typeof (oo)) >= 0
+const isNotObject = (oo) => ['boolean', 'string', 'number', 'undefined', 'function'].indexOf(typeof (oo)) >= 0
 const intersect = (ob1, obj2) => ob1.filter(v => obj2.includes(v));
 const isFloat = (n) => n === +n && n !== (n | 0)
 const asc = arr => arr.sort((a, b) => a - b);
@@ -25,12 +26,11 @@ const quantile = (arr, q) => {
 const q25 = arr => quantile(arr, .25);
 const q50 = arr => quantile(arr, .50);
 const q75 = arr => quantile(arr, .75);
-const median = arr => q50(arr);
 
 // Get any (with the limitation above) object statistics (like Python/Pandas DataFrame#summary method)
 function getObjectStatistics(object, key = '__roo_t_', first = true) {
-    if (first && isScalar(object)) return null
-    else if (isScalar(object)) return { type: typeof (object) === 'number' ? (isFloat(object) ? 'float' : 'integer') : typeof (object) }
+    if (first && isNotObject(object)) return null
+    else if (isNotObject(object)) return { type: typeof (object) === 'number' ? (isFloat(object) ? 'float' : 'integer') : typeof (object) }
 
     if (first && Array.isArray(object)) return null
     // if(!!(object && object.constructor && object.call && object.apply)) return null
@@ -38,14 +38,21 @@ function getObjectStatistics(object, key = '__roo_t_', first = true) {
     if (Array.isArray(object) && !isNaN(min = Math.min.apply(null, object))) {
         const ret = {
             type: 'array',
+            count: object.length,
+            mean: object.reduce((a, b) => a + b, 0) / object.length,
+            std: std(object),
             min: min,
-            max: Math.max.apply(null, object),
-            avg: object.reduce((a, b) => a + b, 0) / object.length,
             q25: q25(object),
-            q50: q50(object),
+            median: q50(object),
             q75: q75(object),
-            median: median(object),
-            std: std(object)
+            max: Math.max.apply(null, object),
+        }
+        return ret
+    } else if (Array.isArray(object) && object.length > 1 && object.every(isNotObject)) {
+        const ret = {
+            type: 'array',
+            count: object.length,
+            unique: new Set(object).size
         }
         return ret
     } else if (Array.isArray(object) && object.length > 1 && (intersection = intersect(Object.keys(object[0]), Object.keys(object[1]))).length) {
