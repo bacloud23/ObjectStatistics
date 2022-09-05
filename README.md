@@ -81,7 +81,7 @@ To
 }
 ```
 
-Note: It is meant to be lazy and opportunistic (to be fast). Like in one iteration try to grab anything useful then maybe go deeper. This is why code is not so clear.
+Note: It is meant to be eager and opportunistic (to be fast). Like in one iteration try to grab anything useful then maybe go deeper. This is why code is not so clear.
 Note: `undefined` are considered unique values, while `null` are omited from any count.
 
 
