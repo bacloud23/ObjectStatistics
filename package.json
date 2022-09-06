@@ -1,0 +1,24 @@
+{
+  "name": "js-object-describe",
+  "version": "1.0.0",
+  "description": "Parses objects quickly and returns types and a basic set of statistics about inner arrays (`median, average, max, min, etc`)",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bacloud22/js-object-describe.git"
+  },
+  "author": "B.A bacloud14 (at)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bacloud22/js-object-describe/issues"
+  },
+  "homepage": "https://github.com/bacloud22/js-object-describe#readme",
+  "dependencies": {
+    "ndjson": "^2.0.0",
+    "node-fetch": "^3.2.10"
+  }
+}

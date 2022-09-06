@@ -81,3 +81,13 @@ function getObjectStatistics(object, key = '__roo_t_', first = true) {
     }
     return finalResult
 }
+
+fetch('https://dummyjson.com/products?limit=1000')
+    .then(res => res.json())
+    .then(json => {
+        let cc = getObjectStatistics(json)
+        console.log(cc)
+    })
+
+let cc = getObjectStatistics(kaggle_cameleon)
+console.log(cc)
