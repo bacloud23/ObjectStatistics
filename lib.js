@@ -60,7 +60,7 @@ function getObjectStatistics(object, key = '__roo_t_', first = true) {
         return ret
     } else if (isArray && object.length > 1 && object.every(isNotObject)) {
         const ret = {
-            type: 'array:mixed',
+            type: 'array:nan',
             count: object.length,
             unique: new Set(object).size
         }
