@@ -31,34 +31,41 @@ const q75 = arr => quantile(arr, .75);
 
 // Get any (with the limitation above) object statistics (like Python/Pandas DataFrame#summary method)
 function getObjectStatistics(object, key = '__roo_t_', first = true) {
-    if (first && isNotObject(object)) return null
+    if (first && isNotObject(object)) return { '__roo_t_': { type: typeof (object) } }
     else if (isNotObject(object)) return { type: typeof (object) === 'number' ? (isFloat(object) ? 'float' : 'integer') : typeof (object) }
-    if (first && Array.isArray(object)) return null
-    
-    if(Array.isArray(object))
+    const isArray = Array.isArray(object)
+    if (first && isArray) return null
+    let mixed = false
+    if (isArray) {
         object = object.filter(el => el != null)
+        mixed = new Set(object.map(o => typeof (o))).size == 2
+    }
     let min, intersection
-    if (Array.isArray(object) && !isNaN(min = Math.min.apply(null, object))) {
+    // isNaN([1,2,5,"101k"]) == NaN && isNaN(NaN) == true // A fast correct way to check if an array is numbers 
+    // either infered from string or plain numbers (mixed or not)
+    if (isArray && !isNaN(min = Math.min.apply(null, object))) {
+        // true -> 1 & "1001" is 1001
+        object = object.map(Number)
         const ret = {
-            type: 'array:number',
+            type: mixed ? `array:number:infered` : 'array:number',
             count: object.length,
             mean: object.reduce((a, b) => a + b, 0) / object.length,
             std: std(object),
-            min: min,
+            min: Math.min.apply(null, object),
             q25: q25(object),
             median: q50(object),
             q75: q75(object),
             max: Math.max.apply(null, object),
         }
         return ret
-    } else if (Array.isArray(object) && object.length > 1 && object.every(isNotObject)) {
+    } else if (isArray && object.length > 1 && object.every(isNotObject)) {
         const ret = {
             type: 'array:mixed',
             count: object.length,
             unique: new Set(object).size
         }
         return ret
-    } else if (Array.isArray(object) && object.length > 1 && (intersection = intersect(Object.keys(object[0]), Object.keys(object[1]))).length) {
+    } else if (isArray && object.length > 1 && (intersection = intersect(Object.keys(object[0]), Object.keys(object[1]))).length) {
         const ret = {}
         for (let index = 0; index < intersection.length; index++) {
             const key = intersection[index]
