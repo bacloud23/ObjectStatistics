@@ -18,7 +18,11 @@
   },
   "homepage": "https://github.com/bacloud22/js-object-describe#readme",
   "dependencies": {
+    "dotenv": "^16.0.2",
     "ndjson": "^2.0.0",
     "node-fetch": "^3.2.10"
+  },
+  "devDependencies": {
+    "eslint": "^8.23.0"
   }
 }
