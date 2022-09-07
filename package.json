@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/bacloud22/js-object-describe#readme",
   "dependencies": {
+    "bandwidth-throttle-stream": "^1.1.4",
     "dotenv": "^16.0.2",
     "ndjson": "^2.0.0",
     "node-fetch": "^3.2.10"
