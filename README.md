@@ -1,12 +1,14 @@
-# JSON-summary
+# `ObjectStatistics`
 
-**This is work in progress. It might crash and it has limitations**
+**This is work in progress. It might crash and it has limitations. An npm package will be shiped and an API will be provided**
 
-Similar to Python **Pandas's** `DataFrame#summary()` .. This JavaScript function parses objects quickly and returns types and a basic set of statistics about inner arrays (`median, average, max, min, etc`)
+Similar to Python `Pandas's` `DataFrame#summary()` .. This JavaScript function parses objects quickly and returns types and a basic set of statistics about inner arrays (`median, average, max, min, etc`), as well as a view of data (data types and structure).
 
-Please note that **Pandas** summary function deals with a table, which is like a JSON with array's (rows) of same lengthes. There is no second and third level in dataframes, otherwise it is going to be a mess to define and get statistics. This is why **JSON-summary** does not and cannot go deeper.
+It does support a *streaming* version as well. For instance a stream of JSON (called [NDJson](http://ndjson.org/)) can be fed to `ObjectStatistics`; In this case, (`median, average, max, min, etc`) are calculated accordingly with the latest seen data in a rolling fashion.
 
-**JSON-summary** turns this
+Please note that `Pandas` summary function deals with a table, which is like a JSON with array's (rows) of same lengthes. There is no second and third level in dataframes, otherwise it is going to be a mess to define and get statistics. This is why `ObjectStatistics` does not and cannot go deeper.
+
+`ObjectStatistics` turns this
 
 ```js
 let oo = {
