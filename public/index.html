@@ -66,15 +66,19 @@
 
     </main>
     <script type="module">
+        function validateUrl(value) {
+            return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
+          }
         // import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
         // ws://localhost:3000/socket.io/
         let socket, url
         function buildChannel(newUrl) {
-            if(url === newUrl || !valid(newUrl)) return
+            alert(`oh so you want this ${newUrl}`)
+            if(url === newUrl || !validateUrl(newUrl)) return
             if (socket) {
                 socket.close()
             }
-            const endpoint = `ws://${window.location.host}/ws/?channel=${newUrl}`
+            const endpoint = `ws://${window.location.host}/ws/?channel=${encodeURIComponent(newUrl)}`
             socket = new WebSocket(endpoint)
             socket.onerror = function (error) {
                 console.log(error)
@@ -89,7 +93,11 @@
                 }
             }
         }
-        buildChannel('www.google.com')
+        let req
+        while( req = prompt("Please enter your URL")) {
+            buildChannel(req)
+        }
+        
     </script>
     <script type="module" src="data.js"></script>
     <script type="module" src="ObjectStatistics.js"></script>
