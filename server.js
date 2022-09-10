@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename)
 
 const app = fastify({ logger: true })
 
-app.register(fastifyWebsocket)
+app.register(fastifyWebsocket, { clientTracking: true, })
 app.register(fastifyRateLimit, {
     "max": 100,
     "timeWindow": "1 minute"

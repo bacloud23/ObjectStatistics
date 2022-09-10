@@ -68,22 +68,29 @@
     <script type="module">
         // import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
         // ws://localhost:3000/socket.io/
-        const endpoint = `ws://${window.location.host}/ws/`
-        const socket = new WebSocket(endpoint)
-
-        socket.onerror = function (error) {
-            console.log(error)
-        }
-
-        socket.onmessage = (response) => {
-            try {
-                let message = JSON.parse(response.data)
-                console.log(message)
-            } catch (error) {
+        let socket, url
+        function buildChannel(newUrl) {
+            if(url === newUrl || !valid(newUrl)) return
+            if (socket) {
+                socket.close()
+            }
+            const endpoint = `ws://${window.location.host}/ws/?channel=${newUrl}`
+            socket = new WebSocket(endpoint)
+            socket.onerror = function (error) {
                 console.log(error)
             }
+
+            socket.onmessage = (response) => {
+                try {
+                    let message = JSON.parse(response.data)
+                    console.log(message)
+                } catch (error) {
+                    console.log(error)
+                }
+            }
         }
-      </script>
+        buildChannel('www.google.com')
+    </script>
     <script type="module" src="data.js"></script>
     <script type="module" src="ObjectStatistics.js"></script>
     <script type="module" src="main.js"></script>

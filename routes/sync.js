@@ -21,16 +21,25 @@ async function routes(fastify, options) {
             ws.ping()
         })
     }, 100000)
+    
+    setInterval(() => {
+        console.log(`seeing all clients`)
+        for (let client of fastify.websocketServer.clients) {
+            if (client.readyState === 1) console.log(client.id)
+       }
+    }, 2000);
+
     // Periodically refresh sockets
     setInterval(function () {
         console.log('refreshing channels')
         refreshChannels(channels)
     }, 100000)
 
+
     fastify.get('/ws/*', { websocket: true }, (connection, request) => {
         connection.socket.id = uuidv4()
         const socket = connection.socket
-        // Client connect
+        // Client connect. Channel identified while channel is a URL
         const channel = request.query.channel
         console.log(`Channel identified ${channel}`)
         if (validChannel(channel)) {
@@ -50,7 +59,7 @@ async function routes(fastify, options) {
         socket.on('close', () => {
             socket.isAlive = false
             connection.destroy()
-            broadcast({ sender: '__server', message: `${channel} left` }, channel)
+            // broadcast({ sender: '__server', message: `${channel} left` }, channel)
         })
         // Broadcast incoming message
         socket.on('message', (message) => {
