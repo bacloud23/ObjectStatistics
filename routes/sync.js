@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
-import ObjectStatistics from '../lib/ObjectStatistics'
+import ObjectStatistics from '../lib/ObjectStatistics.js'
+import urlExists from '../lib/urlExists.js'
 
 async function routes(fastify, options) {
     // Channels is a map of { key: socket }
@@ -43,33 +44,42 @@ async function routes(fastify, options) {
         // Client connect. Channel identified while channel is a URL
         const channel = request.query.channel
         console.log(`Channel identified ${channel}`)
-        if (validChannel(channel)) {
-            addChannel(channel, socket)
-            socket.isAlive = true
-            socket.on('pong', heartbeat)
-        } else {
+        if (!validChannel(channel)) {
             console.log('something fishy kick him out')
             // return for current connection !
             socket.isAlive = false
             connection.destroy()
-            return
         }
-        // New channel
-        broadcast({ sender: '__server', message: `${channel} joined` }, channel)
-        // Leaving channel
-        socket.on('close', () => {
-            socket.isAlive = false
-            connection.destroy()
-            // broadcast({ sender: '__server', message: `${channel} left` }, channel)
-        })
-        // Broadcast incoming message
-        socket.on('message', (message) => {
-            message = JSON.parse(message.toString())
-            broadcast({ sender: channel, ...message }, channel)
-        })
+        urlExists(channel, process)
 
+        function process(status) {
+            let stats
+            switch (status) {
+                case 200:
+                    addChannel(channel, socket)
+                    socket.isAlive = true
+                    socket.on('pong', heartbeat)
+                    // New channel
+                    broadcast({ sender: '__server', message: `${channel} joined` }, channel)
+                    // Leaving channel
+                    socket.on('close', () => {
+                        socket.isAlive = false
+                        connection.destroy()
+                        // broadcast({ sender: '__server', message: `${channel} left` }, channel)
+                    })
+                    // Broadcast incoming message
+                    socket.on('message', (message) => {
+                        message = JSON.parse(message.toString())
+                        broadcast({ sender: channel, ...message }, channel)
+                    })
+                    stats = new ObjectStatistics(true)
+                    // stats.getStats
+                    break;
+                default:
+                    break;
+            }
+        }
 
-        ObjectStatistics(true)
     })
 
     function heartbeat() {
