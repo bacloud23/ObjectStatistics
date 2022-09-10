@@ -2,7 +2,7 @@
   "name": "js-object-describe",
   "version": "1.0.0",
   "description": "Parses objects quickly and returns types and a basic set of statistics about inner arrays (`median, average, max, min, etc`)",
-  "main": "main.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,8 +18,11 @@
   },
   "homepage": "https://github.com/bacloud22/js-object-describe#readme",
   "dependencies": {
+    "@fastify/rate-limit": "^7.4.0",
+    "@fastify/static": "^6.5.0",
     "bandwidth-throttle-stream": "^1.1.4",
     "dotenv": "^16.0.2",
+    "fastify": "^4.5.3",
     "ndjson": "^2.0.0",
     "node-fetch": "^3.2.10"
   },
