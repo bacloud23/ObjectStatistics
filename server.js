@@ -23,7 +23,7 @@ app.register(fastifyRateLimit, {
     "max": 100,
     "timeWindow": "1 minute"
 })
-app.register(syncRouter, { prefix: 'sync' })
+app.register(syncRouter)
 app.register(fastifyServe, { root: path.join(__dirname, 'public') })
 
 

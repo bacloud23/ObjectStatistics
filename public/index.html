@@ -10,7 +10,6 @@
         content="Similar to Python Pandas's DataFrame summary function .. This JavaScript function parses objects quickly and returns types and a basic set of statistics about inner arrays like median, average, max, min, etc">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css">
-    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -66,6 +65,19 @@
         </section><!-- ./ Preview -->
 
     </main>
+    <script type="module">
+        import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+        // ws://localhost:3000/socket.io/
+        const socket = io("ws://localhost:3000/socket.io/", {
+            reconnectionDelayMax: 10000,
+            auth: {
+              token: "123"
+            },
+            query: {
+              "my-key": "my-value"
+            }
+          });
+      </script>
     <script type="module" src="data.js"></script>
     <script type="module" src="ObjectStatistics.js"></script>
     <script type="module" src="main.js"></script>
