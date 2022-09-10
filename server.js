@@ -1,5 +1,7 @@
 // Require the framework and instantiate it
+
 import fastify from 'fastify'
+import fastifyWebsocket from '@fastify/websocket'
 import fastifyServe from '@fastify/static'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -8,6 +10,7 @@ import ObjectStatistics from './lib/ObjectStatistics.js'
 import fetch from 'node-fetch';
 import ndjson from 'ndjson'
 import { config as dotenv } from 'dotenv'
+import syncRouter from './routes/sync.js'
 dotenv()
 
 const __filename = fileURLToPath(import.meta.url)
@@ -15,16 +18,17 @@ const __dirname = path.dirname(__filename)
 
 const app = fastify({ logger: true })
 
+app.register(fastifyWebsocket)
 app.register(fastifyRateLimit, {
     "max": 100,
     "timeWindow": "1 minute"
 })
-
+app.register(syncRouter, { prefix: 'sync' })
 app.register(fastifyServe, { root: path.join(__dirname, 'public') })
 
 
 // Declare a route
-app.get('/api', async (request, reply) => {
+app.get('/api/', async (request, reply) => {
     const stats = new ObjectStatistics(true)
     async function runtest(pathname) {
         console.log(`pathname=${pathname}`);
@@ -42,11 +46,10 @@ app.get('/api', async (request, reply) => {
             let cc = stats.getStats(obj)
             // console.log('Object stats::')
             // console.log(cc)
-            if (co++ > 5)
-                {
-                    console.log(stats.memory)
-                    res.body.unpipe()
-                }
+            if (co++ > 5) {
+                console.log(stats.memory)
+                res.body.unpipe()
+            }
         }).on('end', () => {
             console.log(stats.memory)
         })
