@@ -66,17 +66,23 @@
 
     </main>
     <script type="module">
-        import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+        // import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
         // ws://localhost:3000/socket.io/
-        const socket = io("ws://localhost:3000/socket.io/", {
-            reconnectionDelayMax: 10000,
-            auth: {
-              token: "123"
-            },
-            query: {
-              "my-key": "my-value"
+        const endpoint = `ws://${window.location.host}/ws/`
+        const socket = new WebSocket(endpoint)
+
+        socket.onerror = function (error) {
+            console.log(error)
+        }
+
+        socket.onmessage = (response) => {
+            try {
+                let message = JSON.parse(response.data)
+                console.log(message)
+            } catch (error) {
+                console.log(error)
             }
-          });
+        }
       </script>
     <script type="module" src="data.js"></script>
     <script type="module" src="ObjectStatistics.js"></script>
