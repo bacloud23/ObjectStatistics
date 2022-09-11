@@ -64,12 +64,13 @@ async function routes(fastify, options) {
             console.log(status)
             console.log(responseType)
             const contentType = contentTypeParser(responseType)
-            if (contentType.toString() !== 'application/json; charset=utf-8') return // TODO: broadcast (not supported)
+            // if (contentType.toString() !== 'application/json; charset=utf-8'
+            //     && contentType.toString() !== 'text/html; charset=utf-8') return // TODO: broadcast (not supported)
             const streaming = contentType.type === 'application' && contentType.subtype === 'x-ndjson'
             // Treat redirects like 301
             let responseStats = new ObjectStatistics(streaming)
             let co = 0
-            if (status !== 200) return // TODO: broadcast (not found)
+            // if (status !== 200) return // TODO: broadcast (not found)
             addChannel(channel, socket)
             socket.isAlive = true
             socket.on('pong', heartbeat)
@@ -91,15 +92,16 @@ async function routes(fastify, options) {
                 stream.on('data', async function (obj) {
                     let cc = responseStats.getStats(obj)
                     // TODO: broadcast Object stats
-                    // console.log(cc)
-                    // if (co++ > 5)
-                    //     console.log(streamingStats.memory) // TODO: broadcast partial stats
+                    console.log(cc)
+                    if (co++ > 5)
+                        console.log(responseStats.memory) // TODO: broadcast partial stats
                 }).on('end', () => {
-                    // TODO: broadcast streamingStats.memory
+                    // TODO: broadcast responseStats.memory
                 })
                 // TODO: broadcast it is being processed
             }).catch((err) => {
                 // TODO: broadcast nothing
+                console.log(err)
             });
 
         }
