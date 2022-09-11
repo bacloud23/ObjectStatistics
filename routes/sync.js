@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
 import ObjectStatistics from '../lib/ObjectStatistics.js'
-import urlExists from '../lib/urlExists.js'
+import streamFetch from '../lib/streamFetch.js'
+import urlHeaders from '../lib/urlHeaders.js'
+import urlExist from "url-exist"
+import contentTypeParser from "content-type-parser";
 
 async function routes(fastify, options) {
     // Channels is a map of { key: socket }
@@ -29,7 +32,7 @@ async function routes(fastify, options) {
         for (let client of fastify.websocketServer.clients) {
             if (client.readyState === 1) console.log(client.id)
         }
-    }, 2000);
+    }, 10000);
 
     // Periodically refresh sockets
     setInterval(function () {
@@ -50,34 +53,55 @@ async function routes(fastify, options) {
             socket.isAlive = false
             connection.destroy()
         }
-        urlExists(channel, process)
+        urlExist(decodeURIComponent(channel)).then((isGood) => {
+            if (isGood) urlHeaders(decodeURIComponent(channel), process)
+        }).catch((err) => {
 
-        function process(status) {
-            let stats
-            switch (status) {
-                case 200:
-                    addChannel(channel, socket)
-                    socket.isAlive = true
-                    socket.on('pong', heartbeat)
-                    // New channel
-                    broadcast({ sender: '__server', message: `${channel} joined` }, channel)
-                    // Leaving channel
-                    socket.on('close', () => {
-                        socket.isAlive = false
-                        connection.destroy()
-                        // broadcast({ sender: '__server', message: `${channel} left` }, channel)
-                    })
-                    // Broadcast incoming message
-                    socket.on('message', (message) => {
-                        message = JSON.parse(message.toString())
-                        broadcast({ sender: channel, ...message }, channel)
-                    })
-                    stats = new ObjectStatistics(true)
-                    // stats.getStats
-                    break;
-                default:
-                    break;
-            }
+        });
+
+        // Only process "application/json; charset=utf-8" or "application/x-ndjson" for now
+        function process(status, responseType) {
+            console.log(status)
+            console.log(responseType)
+            const contentType = contentTypeParser(responseType)
+            if (contentType.toString() !== 'application/json; charset=utf-8') return // TODO: broadcast (not supported)
+            const streaming = contentType.type === 'application' && contentType.subtype === 'x-ndjson'
+            // Treat redirects like 301
+            let responseStats = new ObjectStatistics(streaming)
+            let co = 0
+            if (status !== 200) return // TODO: broadcast (not found)
+            addChannel(channel, socket)
+            socket.isAlive = true
+            socket.on('pong', heartbeat)
+            // New channel
+            broadcast({ sender: '__server', message: `${channel} joined` }, channel)
+            // Leaving channel
+            socket.on('close', () => {
+                socket.isAlive = false
+                connection.destroy()
+                // broadcast({ sender: '__server', message: `${channel} left` }, channel)
+            })
+
+            // Broadcast incoming message
+            // socket.on('message', (message) => {
+            //     message = JSON.parse(message.toString())
+            //     broadcast({ sender: channel, ...message }, channel)
+            // })
+            streamFetch(channel).then((stream) => {
+                stream.on('data', async function (obj) {
+                    let cc = responseStats.getStats(obj)
+                    // TODO: broadcast Object stats
+                    // console.log(cc)
+                    // if (co++ > 5)
+                    //     console.log(streamingStats.memory) // TODO: broadcast partial stats
+                }).on('end', () => {
+                    // TODO: broadcast streamingStats.memory
+                })
+                // TODO: broadcast it is being processed
+            }).catch((err) => {
+                // TODO: broadcast nothing
+            });
+
         }
 
     })
