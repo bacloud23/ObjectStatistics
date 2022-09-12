@@ -3,7 +3,11 @@ import ObjectStatistics from '../lib/ObjectStatistics.js'
 import streamFetch from '../lib/streamFetch.js'
 import urlHeaders from '../lib/urlHeaders.js'
 import urlExist from "url-exist"
+import { existsSync } from 'node:fs';
+import fs from 'fs';
 import contentTypeParser from "content-type-parser";
+import detourStream from 'detour-stream'
+import hasLines from '../lib/fileFilter.js'
 
 async function routes(fastify, options) {
     // Channels is a map of { key: socket }
@@ -47,26 +51,38 @@ async function routes(fastify, options) {
         // Client connect. Channel identified while channel is a URL
         const channel = request.query.channel
         console.log(`Channel identified ${channel}`)
-        if (!validChannel(channel)) {
+        let type
+        if (!(type = validChannel(channel))) {
             console.log('something fishy kick him out')
             // return for current connection !
             socket.isAlive = false
             connection.destroy()
         }
-        urlExist(decodeURIComponent(channel)).then((isGood) => {
-            if (isGood) urlHeaders(decodeURIComponent(channel), process)
-        }).catch((err) => {
+        if (type === 'url')
+            urlExist(decodeURIComponent(channel)).then((isGood) => {
+                if (isGood) urlHeaders(decodeURIComponent(channel), process)
+            }).catch((err) => {
 
-        });
+            });
+        else // file
+            existsSync(channel) && process()
 
         // Only process "application/json; charset=utf-8" or "application/x-ndjson" for now
         function process(status, responseType) {
-            console.log(status)
-            console.log(responseType)
-            const contentType = contentTypeParser(responseType)
-            // if (contentType.toString() !== 'application/json; charset=utf-8'
-            //     && contentType.toString() !== 'text/html; charset=utf-8') return // TODO: broadcast (not supported)
-            const streaming = contentType.type === 'application' && contentType.subtype === 'x-ndjson'
+            let streaming = false
+
+            if (type === 'url') {
+                const contentType = contentTypeParser(responseType)
+                // if (contentType.toString() !== 'application/json; charset=utf-8'
+                //     && contentType.toString() !== 'text/html; charset=utf-8') return // TODO: broadcast (not supported)
+                streaming = contentType.type === 'application' && contentType.subtype === 'x-ndjson'
+            } else {
+                const fileReader = fs.createReadStream(channel)
+                fileReader.pipe(hasLines).on('error', () => {
+                }).on('finish', () => {
+                    streaming = true
+                })
+            }
             // Treat redirects like 301
             let responseStats = new ObjectStatistics(streaming)
             let co = 0

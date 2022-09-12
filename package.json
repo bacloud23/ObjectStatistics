@@ -24,6 +24,7 @@
     "@fastify/websocket": "^7.0.1",
     "bandwidth-throttle-stream": "^1.1.4",
     "content-type-parser": "^1.0.2",
+    "detour-stream": "^0.0.1",
     "dotenv": "^16.0.2",
     "fastify": "^4.5.3",
     "ndjson": "^2.0.0",
